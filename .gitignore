@@ -1,0 +1,18 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Rust / Tauri
+src-tauri/target/
+src-tauri/gen/
+
+# Never commit exported profile bundles or local key material by accident
+*.pem
+*.key
+tunnelkey
+*.pub
+perfiles-ssh*.json
+
+# OS / editor cruft
+.DS_Store
+*.swp

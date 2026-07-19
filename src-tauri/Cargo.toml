@@ -1,0 +1,50 @@
+[package]
+name = "ssh-tunnel-manager"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "ssh_tunnel_manager_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-store = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-notification = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+anyhow = "1"
+thiserror = "1"
+
+# Blocking SSH client bound to libssh2. Chosen over pure-Rust async clients
+# (e.g. russh) for API stability: `Session` / `Channel` / `channel_direct_tcpip`
+# have been unchanged for years, which matters for a skeleton nobody has
+# compiled yet. It runs on a dedicated OS thread per tunnel (see ssh_tunnel.rs),
+# so it doesn't block the Tauri async runtime.
+ssh2 = "0.9"
+
+# Secure credential storage in the OS keychain (Keychain / Credential Manager /
+# Secret Service) instead of ever writing passwords or passphrases to disk.
+keyring = "3"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+
+# Production build tuning. `cargo tauri build` uses this profile.
+# Deliberately NOT `panic = "abort"`: this app runs many background threads
+# (one SSH session per forwarded connection, plus keepalive/stats threads).
+# With the default `panic = "unwind"`, a bug that panics one of those threads
+# just ends that thread — with "abort" it would kill the entire application.
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
