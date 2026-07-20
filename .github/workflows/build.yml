@@ -1,0 +1,55 @@
+name: Build installers
+
+# Corre cuando pusheás un tag de versión (ej: git tag v0.1.1 && git push --tags).
+# Si querés probarlo sin taguear, agregá `workflow_dispatch:` para poder
+# dispararlo a mano desde la pestaña "Actions" de GitHub.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: "ubuntu-22.04" # produce .deb y .rpm
+          - platform: "windows-latest" # produce .msi y .exe (nsis)
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar dependencias de sistema (solo Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - name: Instalar Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependencias del frontend
+        run: npm install
+        working-directory: ./frontend
+
+      - name: Build + empaquetado con Tauri
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "SSH Tunnel Manager ${{ github.ref_name }}"
+          releaseDraft: true
+          prerelease: false
