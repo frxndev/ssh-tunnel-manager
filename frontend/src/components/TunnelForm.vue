@@ -1,122 +1,122 @@
 <script setup>
-import { reactive, ref, watch } from 'vue'
-import { open } from '@tauri-apps/plugin-dialog'
-import { useTunnelStore } from '../stores/tunnels'
+import { reactive, ref, watch } from "vue";
+import { open } from "@tauri-apps/plugin-dialog";
+import { useTunnelStore } from "../stores/tunnels";
 
-const store = useTunnelStore()
+const store = useTunnelStore();
 
 const props = defineProps({
   modelValue: { type: Object, default: null }, // profile being edited, or null for "new"
-})
-const emit = defineEmits(['save', 'cancel'])
+});
+const emit = defineEmits(["save", "cancel"]);
 
 function blankProfile() {
   return {
-    id: '',
-    name: '',
-    kind: 'Local',
-    group: '',
-    sshHost: '',
+    id: "",
+    name: "",
+    kind: "Local",
+    group: "",
+    sshHost: "",
     sshPort: 22,
-    sshUser: '',
-    authMethod: 'PrivateKey',
-    password: '',
-    privateKeyPath: '',
-    passphrase: '',
-    localHost: '127.0.0.1',
+    sshUser: "",
+    authMethod: "PrivateKey",
+    password: "",
+    privateKeyPath: "",
+    passphrase: "",
+    localHost: "127.0.0.1",
     localPort: 8080,
-    remoteHost: '',
+    remoteHost: "",
     remotePort: 80,
-  }
+  };
 }
 
-const form = reactive(blankProfile())
+const form = reactive(blankProfile());
 
 watch(
   () => props.modelValue,
   (val) => Object.assign(form, blankProfile(), val ?? {}),
-  { immediate: true }
-)
+  { immediate: true },
+);
 
 function submit() {
-  emit('save', { ...form })
+  emit("save", { ...form });
 }
 
 async function browseForKey() {
   const selected = await open({
-    title: 'Elegir clave privada SSH',
+    title: "Elegir clave privada SSH",
     multiple: false,
     directory: false,
-  })
-  if (typeof selected === 'string') {
-    form.privateKeyPath = selected
+  });
+  if (typeof selected === "string") {
+    form.privateKeyPath = selected;
   }
 }
 
 // -- SSH connection templates ----------------------------------------
 
-const selectedTemplateId = ref('')
-const showSaveTemplate = ref(false)
-const newTemplateName = ref('')
+const selectedTemplateId = ref("");
+const showSaveTemplate = ref(false);
+const newTemplateName = ref("");
 
 function applyTemplate() {
-  const tpl = store.templates.find((t) => t.id === selectedTemplateId.value)
-  if (!tpl) return
-  form.sshHost = tpl.sshHost
-  form.sshPort = tpl.sshPort
-  form.sshUser = tpl.sshUser
-  form.authMethod = tpl.authMethod
-  form.privateKeyPath = tpl.privateKeyPath || ''
+  const tpl = store.templates.find((t) => t.id === selectedTemplateId.value);
+  if (!tpl) return;
+  form.sshHost = tpl.sshHost;
+  form.sshPort = tpl.sshPort;
+  form.sshUser = tpl.sshUser;
+  form.authMethod = tpl.authMethod;
+  form.privateKeyPath = tpl.privateKeyPath || "";
 }
 
 async function saveAsTemplate() {
-  if (!newTemplateName.value.trim()) return
+  if (!newTemplateName.value.trim()) return;
   await store.saveTemplate({
-    id: '',
+    id: "",
     name: newTemplateName.value.trim(),
     sshHost: form.sshHost,
     sshPort: form.sshPort,
     sshUser: form.sshUser,
     authMethod: form.authMethod,
-    privateKeyPath: form.authMethod === 'PrivateKey' ? form.privateKeyPath : null,
-  })
-  newTemplateName.value = ''
-  showSaveTemplate.value = false
+    privateKeyPath: form.authMethod === "PrivateKey" ? form.privateKeyPath : null,
+  });
+  newTemplateName.value = "";
+  showSaveTemplate.value = false;
 }
 
 // -- Port availability check ------------------------------------------
 
-const portStatus = ref(null) // null | 'checking' | 'free' | 'busy'
+const portStatus = ref(null); // null | 'checking' | 'free' | 'busy'
 
 async function checkPort() {
-  if (form.kind === 'Remote') {
-    portStatus.value = null // that port is bound on the *server*, not here
-    return
+  if (form.kind === "Remote") {
+    portStatus.value = null; // that port is bound on the *server*, not here
+    return;
   }
-  portStatus.value = 'checking'
+  portStatus.value = "checking";
   try {
-    const available = await store.checkPortAvailable(form.localHost || '127.0.0.1', form.localPort)
-    portStatus.value = available ? 'free' : 'busy'
+    const available = await store.checkPortAvailable(form.localHost || "127.0.0.1", form.localPort);
+    portStatus.value = available ? "free" : "busy";
   } catch {
-    portStatus.value = null
+    portStatus.value = null;
   }
 }
 
 // -- Test connection ----------------------------------------------------
 
-const testing = ref(false)
-const testResult = ref(null) // { ok: boolean, message: string } | null
+const testing = ref(false);
+const testResult = ref(null); // { ok: boolean, message: string } | null
 
 async function testConnection() {
-  testing.value = true
-  testResult.value = null
+  testing.value = true;
+  testResult.value = null;
   try {
-    const message = await store.testConnection({ ...form })
-    testResult.value = { ok: true, message }
+    const message = await store.testConnection({ ...form });
+    testResult.value = { ok: true, message };
   } catch (err) {
-    testResult.value = { ok: false, message: String(err) }
+    testResult.value = { ok: false, message: String(err) };
   } finally {
-    testing.value = false
+    testing.value = false;
   }
 }
 </script>
@@ -149,7 +149,10 @@ async function testConnection() {
           type="button"
           class="browse-btn danger"
           title="Eliminar esta plantilla"
-          @click="store.deleteTemplate(selectedTemplateId); selectedTemplateId = ''"
+          @click="
+            store.deleteTemplate(selectedTemplateId);
+            selectedTemplateId = '';
+          "
         >
           Eliminar
         </button>
@@ -211,7 +214,7 @@ async function testConnection() {
       </div>
 
       <button type="button" class="link-btn" :disabled="testing || !form.sshHost || !form.sshUser" @click="testConnection">
-        {{ testing ? 'Probando conexión…' : '⚡ Probar conexión' }}
+        {{ testing ? "Probando conexión…" : "⚡ Probar conexión" }}
       </button>
       <div v-if="testResult" class="test-result" :class="{ ok: testResult.ok, fail: !testResult.ok }">
         {{ testResult.message }}
@@ -229,11 +232,11 @@ async function testConnection() {
 
     <div class="field-row">
       <div class="field">
-        <label>{{ form.kind === 'Remote' ? 'Bind en el servidor remoto' : 'Host local' }}</label>
+        <label>{{ form.kind === "Remote" ? "Bind en el servidor remoto" : "Host local" }}</label>
         <input v-model="form.localHost" placeholder="127.0.0.1" @blur="checkPort" />
       </div>
       <div class="field field-small">
-        <label>Puerto {{ form.kind === 'Remote' ? 'remoto' : 'local' }}</label>
+        <label>Puerto {{ form.kind === "Remote" ? "remoto" : "local" }}</label>
         <input v-model.number="form.localPort" type="number" min="1" max="65535" required @blur="checkPort" />
       </div>
     </div>
@@ -271,9 +274,19 @@ async function testConnection() {
   border-radius: 12px;
   border: 1px solid var(--border);
 }
-.field { display: flex; flex-direction: column; gap: 7px; flex: 1; }
-.field-row { display: flex; gap: 14px; }
-.field-small { flex: 0 0 120px; }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+}
+.field-row {
+  display: flex;
+  gap: 14px;
+}
+.field-small {
+  flex: 0 0 120px;
+}
 label {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -291,10 +304,19 @@ input {
   font-size: 14px;
   font-family: var(--font-body);
 }
-input::placeholder { color: var(--text-faint); }
+input::placeholder {
+  color: var(--text-faint);
+}
 
-.input-with-button { display: flex; gap: 8px; }
-.input-with-button input, .input-with-button select { flex: 1; min-width: 0; }
+.input-with-button {
+  display: flex;
+  gap: 8px;
+}
+.input-with-button input,
+.input-with-button select {
+  flex: 1;
+  min-width: 0;
+}
 .browse-btn {
   padding: 10px 14px;
   border-radius: 7px;
@@ -306,12 +328,28 @@ input::placeholder { color: var(--text-faint); }
   white-space: nowrap;
   cursor: pointer;
 }
-.browse-btn:hover { color: var(--text); border-color: var(--text-faint); }
-.browse-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
+.browse-btn:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+.browse-btn.danger:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
 
-.template-picker { padding: 12px; background: var(--surface-inset); border-radius: 8px; border: 1px solid var(--border); }
+.template-picker {
+  padding: 12px;
+  background: var(--surface-inset);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
 
-.template-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.template-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
 .link-btn {
   background: none;
   border: none;
@@ -321,7 +359,10 @@ input::placeholder { color: var(--text-faint); }
   cursor: pointer;
   padding: 2px 0;
 }
-.link-btn:disabled { color: var(--text-faint); cursor: default; }
+.link-btn:disabled {
+  color: var(--text-faint);
+  cursor: default;
+}
 .test-result {
   font-size: 13px;
   padding: 8px 12px;
@@ -330,13 +371,26 @@ input::placeholder { color: var(--text-faint); }
   width: 100%;
   overflow-wrap: anywhere;
 }
-.test-result.ok { color: var(--success); }
-.test-result.fail { color: var(--danger); }
+.test-result.ok {
+  color: var(--success);
+}
+.test-result.fail {
+  color: var(--danger);
+}
 
-.port-hint { font-size: 12px; margin-top: -8px; }
-.port-hint.checking { color: var(--text-faint); }
-.port-hint.busy { color: var(--warning); }
-.port-hint.free { color: var(--success); }
+.port-hint {
+  font-size: 12px;
+  margin-top: -8px;
+}
+.port-hint.checking {
+  color: var(--text-faint);
+}
+.port-hint.busy {
+  color: var(--warning);
+}
+.port-hint.free {
+  color: var(--success);
+}
 
 /* Native <select> keeps its OS chrome (light "Aqua" combobox on macOS, for
    example) unless appearance is reset — otherwise the background/color you
@@ -359,11 +413,39 @@ select option {
   background: var(--surface-inset);
   color: var(--text);
 }
-input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-.actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
-button { padding: 10px 18px; border-radius: 7px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; }
-.primary { background: var(--accent); color: #06201c; }
-.primary:hover { background: var(--accent-hover); }
-.secondary { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
-.secondary:hover { color: var(--text); border-color: var(--text-muted); }
+input:focus,
+select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+button {
+  padding: 10px 18px;
+  border-radius: 7px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.primary {
+  background: var(--accent);
+  color: #06201c;
+}
+.primary:hover {
+  background: var(--accent-hover);
+}
+.secondary {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.secondary:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
 </style>

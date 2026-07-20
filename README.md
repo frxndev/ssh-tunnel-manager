@@ -7,12 +7,16 @@ crear, guardar y controlar túneles SSH (`-L`, `-R`, `-D`/SOCKS) desde una UI.
 
 ```
 ssh-tunnel-manager/
-├── frontend/              # Vue 3 + Vite + Pinia
+├── frontend/              # Vue 3 + TypeScript + Nuxt UI (standalone) + Pinia
 │   └── src/
-│       ├── stores/tunnels.js       # estado + llamadas invoke()
+│       ├── types/tunnel.ts         # tipos TS que espejan src-tauri/src/models.rs
+│       ├── stores/tunnels.ts       # estado + llamadas invoke()
+│       ├── composables/            # lógica reutilizable (port check, test connection, plantillas)
 │       ├── components/
-│       │   ├── TunnelForm.vue      # alta/edición de perfiles
-│       │   └── TunnelList.vue      # lista con estado en vivo
+│       │   ├── TunnelFormModal.vue     # alta/edición de perfiles, en un UModal real
+│       │   ├── TunnelList.vue          # lista agrupada
+│       │   ├── TunnelCard.vue          # una fila de túnel, con estado en vivo
+│       │   └── ... (ver frontend/README.md para el resto)
 │       └── App.vue
 └── src-tauri/              # backend Rust
     └── src/
@@ -27,7 +31,7 @@ ssh-tunnel-manager/
 
 ## Qué se verificó en este entorno y qué no
 
-- **Frontend (Vue/Vite/Pinia): compilado y verificado (`npm run build` corrió sin errores).**
+- **Frontend (Vue 3 + TypeScript + Nuxt UI): compilado y verificado** — `npm run build` y `npx vue-tsc --noEmit` corren limpios, sin errores.
 - **Backend (Rust/Tauri): no se compiló aquí** porque este entorno no tiene
   toolchain de Rust instalado. El código sigue los patrones estándar de
   Tauri 2 y la API estable y bien documentada de `ssh2` (`Session`,

@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+@theme static {
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+/* The app is always dark (it's a technical desktop tool, not something that
+ * needs a light-mode variant), so we set these once on :root/.dark instead
+ * of wiring up a theme switcher. */
+:root,
+.dark {
+  --ui-primary: #2dd4bf; /* teal accent, the app's whole visual identity */
+  --ui-bg: #0a0a0c;
+  --ui-bg-elevated: #17181c;
+  --ui-bg-accented: #1e2025;
+  --ui-border: #2a2c32;
+  --ui-text: #ececef;
+  --ui-text-muted: #8a8d94;
+  --ui-text-dimmed: #5b5e65;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--ui-bg);
+}
+
+/* Local port / SSH connection strings read a lot better in monospace. */
+.font-mono-data {
+  font-family: var(--font-mono);
+}
