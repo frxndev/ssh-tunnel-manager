@@ -41,7 +41,7 @@ watch(
       </p>
       <div v-for="(line, i) in lines" :key="i" class="flex gap-2.5 py-0.5 leading-relaxed">
         <span class="text-dimmed shrink-0">{{ formatTime(line.timestampMs) }}</span>
-        <span class="wrap-break-words" :class="levelClass[line.level]">{{ line.message }}</span>
+        <span class="wrap-break-word" :class="levelClass[line.level]">{{ line.message }}</span>
       </div>
     </div>
   </div>

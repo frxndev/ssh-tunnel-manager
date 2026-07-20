@@ -49,7 +49,7 @@ function formatBytes(bytes: number): string {
         <div class="flex items-baseline gap-2">
           <strong class="text-highlighted">{{ profile.name }}</strong>
         </div>
-        <div class="text-xs text-muted mt-0.5 font-mono-data wrap-break-words">
+        <div class="text-xs text-muted mt-0.5 font-mono-data wrap-break-word">
           {{ profile.sshUser }}@{{ profile.sshHost }}:{{ profile.sshPort }}
           <template v-if="profile.kind !== 'Dynamic'">
             → {{ profile.localHost }}:{{ profile.localPort }} ⇢ {{ profile.remoteHost }}:{{ profile.remotePort }}

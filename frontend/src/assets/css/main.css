@@ -1,10 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
-@import 'tailwindcss';
-@import '@nuxt/ui';
+/* Self-hosted fonts (actual .woff2 files bundled by npm/vite, not fetched
+ * from Google's CDN at runtime) — this is a desktop app, it shouldn't need
+ * network access just to render its own UI. */
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-mono/600.css";
+@import "@fontsource/ibm-plex-mono/700.css";
+@import "tailwindcss";
+@import "@nuxt/ui";
 
 @theme static {
-  --font-sans: 'Inter', sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
 }
 
 /* The app is always dark (it's a technical desktop tool, not something that
