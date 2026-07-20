@@ -1,7 +1,9 @@
-# Túneles SSH — Tauri + Rust + Vue
+# SSH Tunnel Manager — Tauri + Rust + Vue
 
 Skeleton de una app de escritorio multiplataforma (Windows/macOS/Linux) para
 crear, guardar y controlar túneles SSH (`-L`, `-R`, `-D`/SOCKS) desde una UI.
+
+<img width="2504" height="1824" alt="imagen" src="https://github.com/user-attachments/assets/2c8ef9c8-2334-4402-a128-6e9e6cee7c0f" />
 
 ## Estructura
 
