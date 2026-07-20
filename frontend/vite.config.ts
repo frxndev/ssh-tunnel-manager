@@ -13,6 +13,9 @@ export default defineConfig({
           neutral: "zinc",
         },
       },
+      icon: {
+        clientBundle: { scan: true },
+      },
     }),
   ],
 });
