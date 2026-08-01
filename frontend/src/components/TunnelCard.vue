@@ -3,7 +3,6 @@ import { ref } from "vue";
 import { useTunnelStore } from "../stores/tunnels";
 import type { TunnelProfile } from "../types/tunnel";
 import TunnelKindBadge from "./TunnelKindBadge.vue";
-import TunnelStatusIndicator from "./TunnelStatusIndicator.vue";
 import LogConsole from "./LogConsole.vue";
 
 const props = defineProps<{ profile: TunnelProfile }>();
@@ -49,22 +48,23 @@ function formatBytes(bytes: number): string {
         <div class="flex items-baseline gap-2">
           <strong class="text-highlighted">{{ profile.name }}</strong>
         </div>
-        <div class="text-xs text-muted mt-0.5 font-mono-data wrap-break-word">
-          {{ profile.sshUser }}@{{ profile.sshHost }}:{{ profile.sshPort }}
-          <template v-if="profile.kind !== 'Dynamic'">
-            → {{ profile.localHost }}:{{ profile.localPort }} ⇢ {{ profile.remoteHost }}:{{ profile.remotePort }}
-          </template>
-          <template v-else>→ SOCKS en {{ profile.localHost }}:{{ profile.localPort }}</template>
+        <div class="flex gap-2 items-center content-center">
+          <UIcon name="i-lucide-trending-up-down" class="size-4 text-muted" />
+          <p class="text-sm text-muted mt-0.5 font-mono-data wrap-break-word">{{ profile.localHost }}:{{ profile.localPort }}</p>
         </div>
-        <div v-if="store.isRunning(profile.id)" class="text-[11px] text-primary mt-0.5 font-mono-data">
-          {{ store.statsFor(profile.id).activeConnections }} conexión(es) activa(s) · ↓
-          {{ formatBytes(store.statsFor(profile.id).bytesIn) }} · ↑ {{ formatBytes(store.statsFor(profile.id).bytesOut) }}
+        <div class="text-xs text-primary mt-0.5 font-mono-data">
+          <template v-if="store.isRunning(profile.id)">
+            {{ store.statsFor(profile.id).activeConnections }} conexión(es) activa(s) · ↓
+            {{ formatBytes(store.statsFor(profile.id).bytesIn) }} · ↑ {{ formatBytes(store.statsFor(profile.id).bytesOut) }}
+          </template>
+          <template v-else>
+            <p class="text-muted">Conexión inactiva</p>
+          </template>
         </div>
         <p v-if="store.errors[profile.id]" class="text-xs text-error mt-1">{{ store.errors[profile.id] }}</p>
       </div>
 
       <div class="flex items-center gap-2 shrink-0">
-        <TunnelStatusIndicator :status="store.status[profile.id] ?? 'stopped'" />
         <UButton
           size="sm"
           :color="store.isRunning(profile.id) ? 'error' : 'neutral'"
